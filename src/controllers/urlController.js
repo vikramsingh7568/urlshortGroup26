@@ -10,7 +10,6 @@ const createUrl = async function(req, res){
         obj.longUrl = req.body.longUrl
         obj.shortUrl = req.createUrl
         obj.urlCode = req.generateId;
-         console.log(req.createUrl);
         let saveUrl = await urlModel.create(obj);
         let saveUrl2 = await urlModel.findOne({_id: saveUrl._id}).select({_id: 0,longUrl:1, shortUrl: 1, urlCode: 1});
         return res.status(201).send({status: true, data:saveUrl2});

@@ -6,7 +6,6 @@ const shortId = require('shortid')
 const createMid = async function(req, res, next){
     try{
         let urlCreate = req.body
-        var objUrl = {}
         let correctLink = false 
         await axios.get(urlCreate.longUrl)
          .then((res) => {  correctLink = true})   
