@@ -1,14 +1,12 @@
 const urlModel =  require('../models/urlModel')
-const shortUrl = require('node-url-shortener');
 const axios = require('axios');
 const shortId = require('shortid');
-const { findOne } = require('../models/urlModel');
 
 const createUrl = async function(req, res){
     try{
         let urlCreate = req.body
         if(Object.keys(urlCreate).length == 0){
-            res.status(400).send({status: false, msg: 'Request body can not be empty'})
+           return res.status(400).send({status: false, msg: 'Request body can not be empty'})
         }
         if(!urlCreate.longUrl){
             return res.status(400).send({status: false, msg: 'Please enter longUrl Key'});
