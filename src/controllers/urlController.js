@@ -86,7 +86,7 @@ const getUrl = async function(req, res){
      
         let cashProfileData = await GET_ASYNC(`${shortId}`)
         if(cashProfileData) {
-          
+          console.log("cache generated for this link")
           let data = JSON.parse(cashProfileData)
           res.status(302).redirect(data.longUrl)
         } else {
@@ -97,9 +97,8 @@ const getUrl = async function(req, res){
      await SET_ASYNC(`${getData.urlCode}`, JSON.stringify(getData))
      return res.status(302).redirect(getData.longUrl)
      
-     // all cashing part in this part 
+     // all cashing part in this part  
     }
-
     }catch(err){
       return res.status(500).send({status : false , msg : err.message})
     }
