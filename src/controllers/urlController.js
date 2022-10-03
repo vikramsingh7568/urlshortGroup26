@@ -1,6 +1,38 @@
 const urlModel =  require('../models/urlModel')
 const axios = require('axios');
 const shortId = require('shortid');
+const redis = require("redis");
+
+const { promisify } = require("util");
+
+//Connect to redis
+const redisClient = redis.createClient(
+  11693,
+  "redis-11693.c212.ap-south-1-1.ec2.cloud.redislabs.com",
+  { no_ready_check: true }
+);
+
+redisClient.auth("fgY1Wek4Oag9aUeXDklbSzXyPp1As9VC", function (err) {
+  if (err) throw err;
+});
+
+redisClient.on("connect", async function () {
+  console.log("Connected to Redis..");
+});
+
+
+
+//1. connect to the server
+//2. use the commands :
+
+//Connection setup for redis
+
+const SET_ASYNC = promisify(redisClient.SET).bind(redisClient);
+// await SET_ASYNC.connect();
+const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
+// await GET_ASYNC.connect();
+
+
 
 const createUrl = async function(req, res){
     try{
@@ -46,12 +78,25 @@ const createUrl = async function(req, res){
 const getUrl = async function(req, res){
     try {
      let shortId = req.params.urlCode
-     let getData = await urlModel.findOne({urlCode : shortId}).select({longUrl : 1 , _id : 0})
      if(!shortId){
         return res.status(400).send({status: false, msg: 'Please enter valid urlCode'})
      }
+     let getData = await urlModel.findOne({urlCode : shortId}).select({longUrl : 1 , _id : 0})
+     if(!getData){
+        return res.send("no url found")
+     }
+
+     
+        let cahcedProfileData = await GET_ASYNC(`${getData.shortUrl}`)
+        if(cahcedProfileData) {
+          res.send(cahcedProfileData)
+        } else {
+     let getData = await urlModel.findOne({urlCode : shortId})
+     await SET_ASYNC(`${getData.shortUrl}`, JSON.stringify(getData))
      return res.status(302).redirect(getData.longUrl)
-    
+        
+    }
+
     }catch(err){
       return res.status(500).send({status : false , msg : err.message})
     }
