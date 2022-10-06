@@ -61,14 +61,14 @@ const createUrl = async function (req, res) {
       console.log("cache generated for this link")
       let data = JSON.parse(cashProfileData)
       return res.status(400).send({
-        status: true, msg: 'shortUrl for this longUrl has already been generated cashing',
+        status: false, msg: 'shortUrl for this longUrl has already been generated cashing',
         data: urlCheck
       });
     } 
  
     if (urlCheck) {
       return res.status(400).send({
-        status: true, msg: 'shortUrl for this longUrl has already been generated db',
+        status: false, msg: 'shortUrl for this longUrl has already been generated db',
         data: urlCheck
       });
    }
@@ -86,7 +86,7 @@ const createUrl = async function (req, res) {
  
     let saveUrl = await urlModel.create(obj);
      
-    await SET_ASYNC(`${saveUrl.longUrl}`, JSON.stringify(saveUrl) )
+    await SET_ASYNC(`${saveUrl.longUrl}`, JSON.stringify(saveUrl),"EX", 1000)
 
     let saveUrl2 = await urlModel.findOne({ _id: saveUrl._id }).select({ _id: 0, longUrl: 1, shortUrl: 1, urlCode: 1 });
     return res.status(201).send({ status: true,message : "created successfully", data: saveUrl2 });
@@ -118,7 +118,7 @@ const getUrl = async function (req, res) {
       if (!getData) {
         return res.status(404).send({ status: false, msg: "no url found" })
       }
-      await SET_ASYNC(`${getData.urlCode}`, JSON.stringify(getData))
+      await SET_ASYNC(`${getData.urlCode}`, JSON.stringify(getData),"EX", 1000)
       return res.status(302).redirect(getData.longUrl)
 
       // all cashing part in this part  
